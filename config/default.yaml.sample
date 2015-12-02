@@ -3,13 +3,13 @@ default:
         twitch:
             enabled: true
             channels:
-                - ProbablePrime
-            username: ProbableBot
+                - <channel>
+            username: <BotUsername>
             password: oauth:URMURGERDOAUTH
         beam :
             enabled: true
             channels:
-                - ProbablePrime
-            username: ProbableBot
+                - <channel>
+            username: <BotUsername>
             password: URMURGERDPLAINTEXTPASSWORDS
     interactive: true
