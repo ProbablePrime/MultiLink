@@ -1,23 +1,45 @@
-import {Beam, 'lib/services/chat' as ChatService, 'lib/ws' as BeamSocket} from 'beam-client-node';
+const Beam = require('beam-client-node');
 import {BeamChannel} from './BeamChannel.js';
+import {Service} from './Service.js';
 
+import {flattenBeamMessage, extractCommand} from '../Utils.js';
 
-export default class BeamService extends Service {
-	constructor (options) {
+import {Logger} from '../Logger.js';
+const log = new Logger('BeamService');
+
+export class BeamService extends Service {
+	constructor (type, options) {
 		options.name = 'Beam';
-		super(options);
+		super(type, options);	
 
 		this.beam = new Beam();
 
-		this.username = '';
-		this.passsword = '';
+		this.username = options.username || '';
+		this.password = options.password || '';
 
 		this.on('channel-added', this.onChannelAdded);
 		this.on('channel-removed', this.onChannelRemoved);
-		this.on('connected',this.onConnected);
+		this.on('connected', this.onConnected);
+
 		this.userData = {};
 		this.userID = 0;
-		this.channels = {};
+		this.channelObjects = [];
+	}
+
+	getChannelByID (id) {
+		return this.channelObjects.find(function(channel){
+			if (channel.id === id) {
+				return true;
+			}
+		});
+	}
+
+	getChannelNameByID (id) {
+		let channel = this.getChannelByID(id);
+		if(channel == null) {
+			return '';
+		}
+		return channel.name;
 	}
 
 	getWebSocket (channel) {
@@ -25,7 +47,7 @@ export default class BeamService extends Service {
 	}
 
 	onConnected () {
-
+		this.addChannels(this.options.channels);
 	}
 // 	{
 //   "type":"event",
@@ -45,41 +67,66 @@ export default class BeamService extends Service {
 //     ]
 //   }
 // }
-	this.handleChat (data) {
+	handleChat (data) {
 		if (data.user_name === this.username) return;
-		if (channel === this.ircOptions.username) {
+		data.channel_name = this.getChannelNameByID(data.channel);
+		const message = flattenBeamMessage(data.message.message);
+
+		if (data.channel_name === this.username) {
 			if (isCommand(message)) {
-				this.emit('command', channel, user, extractCommand(message), message);
+				this.emit('command', data.channel_name, data.user_name, extractCommand(message), message);
 			}
 			return;
 		}
-		this.emit('message', channel.name, user, message);
+		this.emit('message', {channel: data.channel_name, user:data.user_name, message, type: this.type});
 	}
 
 	onSocketReady (channel) {
-		channel.on("ChatMessage",this.handleChat);
+		channel.on('ChatMessage', this.handleChat.bind(this));
+	}
+
+	sendMessageToChannel (message, channel) {
+		channel.sendMessage(message);
+	}
+
+	sendMessage (message) {
+		let channels = this.channelObjects;
+		if (message.type === this.type) {
+			channels = channels.filter(function filterChannels (channel) {
+				if (message.channel === channel.name) {
+					return false;
+				}
+				return true;
+			});
+		}
+		channels.forEach(this.sendMessageToChannel.bind(this, message.text));
 	}
 
 	onChannelAdded (channelName) {
-		var channel = new BeamChannel(channelName,this.client,this.userID).initialize();
-		channel.on('authenticated',this.onSocketReady);
-		this.channels[channelName] = channel;
+		const self = this;
+		log.info('Adding beam channel ' + channelName);
+		const channel = new BeamChannel(channelName, this.beam, this.userID);
+		channel.initialize();
+		channel.on('socket-ready',self.onSocketReady.bind(this));
+		this.channelObjects.push(channel);
 	}
 
-	onChannelRemoved (channelName) {
+	onChannelRemoved (/* channelName */) {
 
 	}
 
 	connect () {
-		let self = this;
-		//Todo use config
-		beam.use('password', {
+		const self = this;
+		log.info('Loggging into beam');
+		this.beam.use('password', {
 			username: self.username,
-			password: self.password
-		}).attempt().then(function(res) {
-			this.userData = res;
-			this.userID = res.id;
-			self.emit('connected',res);
+			password: self.password,
+		}).attempt().then( function onLoggedIn (res) {
+			log.info('Successfully logged into beam');
+		 	const data = res.body;
+			self.userData = data;
+			self.userID = data.id;
+			self.emit('connected', res);
 		});
 	}
 }

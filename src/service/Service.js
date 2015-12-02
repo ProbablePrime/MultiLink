@@ -1,14 +1,16 @@
 import {EventEmitter} from 'events';
 
-export default class Service extends EventEmitter {
-	constructor (options) {
+export class Service extends EventEmitter {
+	constructor (type, options) {
 		super();
 		this.options = options || {};
-		this.key = this.options.key;
+		this.type = type;
 		this.name = this.options.name || 'BaseService';
-		this.channel = this.options.channel || '';
-		this.username = this.options.username || '';
 		this.channels = [];
+	}
+
+	addChannels (channelsArray) {
+		channelsArray.forEach(this.addChannel.bind(this));
 	}
 
 	addChannel (channel) {
@@ -24,5 +26,9 @@ export default class Service extends EventEmitter {
 	}
 
 	connect () {
+	}
+
+	sendMessage () {
+
 	}
 }

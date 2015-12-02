@@ -1,0 +1,15 @@
+default:
+    services:
+        twitch:
+            enabled: true
+            channels:
+                - ProbablePrime
+            username: ProbableBot
+            password: oauth:URMURGERDOAUTH
+        beam :
+            enabled: true
+            channels:
+                - ProbablePrime
+            username: ProbableBot
+            password: URMURGERDPLAINTEXTPASSWORDS
+    interactive: true
