@@ -25,11 +25,11 @@ Written in ES2015 and compiled with babel.
 I wanted to learn ES2015. 
 
 ### Getting Started
-	1. Clone
-	2. npm install
-	3. Write a config file.
-	4. For twitch grab your token from (http://twitchapps.com/tmi/)[http://twitchapps.com/tmi/]
-	5. node index.js
+1. Clone
+2. npm install
+3. Write a config file.
+4. For twitch grab your token from [http://twitchapps.com/tmi/](http://twitchapps.com/tmi/)
+5. node index.js
 
 ### Idiomatic-ness
 
