@@ -4,9 +4,8 @@ import {prepareMessage} from './Utils.js';
 
 const config = require('yaml-config');
 
-const winston = require('winston');
-
-const log = require('npmlog');
+import {Logger} from '../Logger.js';
+const log = new Logger('MAIN');
 
 export class Main {
 	constructor (configFile) {
@@ -14,10 +13,9 @@ export class Main {
 		if (!configFile) {
 			throw new Error('Please pass a config file in');
 		}
-		this.settings = config.readConfig(configFile,'default');
+		this.settings = config.readConfig(configFile, 'default');
 		this.services = [];
 		this.serviceFactory = new ServiceFactory();
-
 	}
 
 	handleMessage (message) {
@@ -33,7 +31,7 @@ export class Main {
 	}
 
 	initializeService (serviceType, options) {
-		log.info('MAIN','Initializing %s',serviceType);
+		log.info('Initializing %s', serviceType);
 		this.services[serviceType] = this.serviceFactory.create(serviceType, options);
 		this.registerEvents(serviceType, this.services[serviceType]);
 
@@ -45,7 +43,7 @@ export class Main {
 		Object.keys(services).forEach(function servicePreInit (serviceType) {
 			const service = services[serviceType];
 			if (!service.enabled) {
-				log.info('MAIN','Serivice: %s is not enabled',serviceType);
+				log.info('Serivice: %s is not enabled', serviceType);
 				return;
 			}
 			self.initializeService(serviceType, service);
