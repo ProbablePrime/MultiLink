@@ -3,9 +3,7 @@ import {isCommand, extractCommand} from '../Utils.js';
 
 const irc = require('tmi.js');
 
-
-
-import {Logger} from '../Logger.js';
+import Logger from '../Logger.js';
 const log = new Logger('TwitchService');
 
 export class TwitchService extends Service {

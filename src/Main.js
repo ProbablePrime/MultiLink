@@ -4,7 +4,7 @@ import {prepareMessage} from './Utils.js';
 
 const config = require('yaml-config');
 
-import {Logger} from '../Logger.js';
+import Logger from './Logger.js';
 const log = new Logger('MAIN');
 
 export class Main {
