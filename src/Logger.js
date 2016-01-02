@@ -1,12 +1,17 @@
-const log = require('npmlog');
+const log = require('debug');
 
-export class Logger {
+export default class Logger {
 	constructor (prefix) {
+		this.levels = [
+			'warn',
+			'info',
+			'error',
+			'log'
+		];
 		const self = this;
-		Object.keys(log.levels).forEach( function _bindLevel (lvl) {
-			self[lvl] = function _recast () {
-				return log[lvl](prefix, ...arguments);
-			};
+		this.levels.forEach( function _bindLevel (lvl) {
+			self[lvl] = log(prefix+':'+lvl);
+			self[lvl].log = console[lvl].bind(console);
 		});
 	}
 }
