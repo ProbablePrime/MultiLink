@@ -18,12 +18,6 @@ Think BeamLink but you own it and it runs just for you.
 
 ## Development
 
-Written in ES2015 and compiled with babel.
-
-### Why ES2015?
-
-I wanted to learn ES2015. 
-
 ### Getting Started
 1. Clone
 2. npm install
